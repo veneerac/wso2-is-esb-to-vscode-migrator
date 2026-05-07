@@ -1,0 +1,19 @@
+# Compiled binary
+migrate
+migrate-is-to-vscode
+
+# Migration working folders — contents are user data, not tracked
+input/*
+output/*
+logs/*
+
+# Keep the empty folder structure in the repo
+!input/.gitkeep
+!output/.gitkeep
+!logs/.gitkeep
+
+# macOS
+.DS_Store
+
+# Go build cache
+*.test
