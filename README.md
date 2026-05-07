@@ -145,6 +145,38 @@ The scaffold creates directories for all standard WSO2 MI artifact types:
 
 ---
 
+## Connector Migration
+
+WSO2 Integration Studio projects may reference connectors via XML tags like `<fileconnector.read>` or `<salesforcerest.query>`. MI 4.x uses a different connector syntax, so the script cannot auto-migrate these safely. Instead it:
+
+1. **Scans every XML file** in the project for connector-style tags (`<name.operation>`).
+2. **Logs a WARNING** for each connector found — visible in both the console output and the per-project log file.
+3. **Creates a `connectors/` folder** inside the migrated project with one init-template file per detected connector.
+4. **Writes `connectors/REVIEW_REQUIRED.md`** — a checklist explaining what to review before building.
+
+### Known connector mappings
+
+| Old IS connector tag prefix | Action taken | MI 4.x init file generated |
+|-----------------------------|--------------|----------------------------|
+| `fileconnector` / `file` | Template auto-generated | `connectors/file.init` (uses new `file.init` local-entry syntax) |
+| `salesforcerest` | Existing init copied (if found), else placeholder written | `connectors/salesforcerest.init` |
+| Any other connector | Placeholder file written | `connectors/<name>.init` |
+
+> The `file.init` template is generated with the MI 4.x `<file.init>` element. You still need to verify the `workingDir` path matches your environment.
+
+### After migration — connector review steps
+
+1. Open `connectors/REVIEW_REQUIRED.md` inside the migrated project.
+2. For each file in `connectors/`:
+   - Verify the connection parameters (host, credentials, paths).
+   - Copy the reviewed file into `src/main/wso2mi/artifacts/local-entries/`.
+3. Delete the `connectors/` folder once all files have been moved.
+4. Build the project — connector warnings will disappear once the local-entry files are in place.
+
+> **Note:** Standard Synapse mediators (`call`, `log`, `filter`, `payloadFactory`, etc.) are excluded from connector detection and will never generate a warning.
+
+---
+
 ## Troubleshooting
 
 **No projects found in input/**
